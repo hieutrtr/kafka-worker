@@ -10,6 +10,29 @@ import com.hieuslash.workers.Worker;
 
 public class WorkerConfig {
 
+  public static Properties getESConfig(Class workerCls) {
+    String configPath = null;
+    String esPropsPath = null;
+    Properties props = new Properties();
+
+    if(workerCls.isAnnotationPresent(WorkerBoot.class))
+    {
+      Annotation anno = workerCls.getAnnotation(WorkerBoot.class);
+      WorkerBoot workerBoot = (WorkerBoot) anno;
+      configPath = workerBoot.configPath();
+      esPropsPath = workerBoot.esPropsPath();
+    }
+
+    try {
+      props = loadPropertyFile(configPath,esPropsPath);
+    } catch (Exception e) {
+      System.out.println(configPath + "/" + esPropsPath);
+    } finally {
+      return props;
+    }
+
+  }
+
   public static Properties getConsumerConfig(Class workerCls) {
     String configPath = null;
     String consumerPropsPath = null;

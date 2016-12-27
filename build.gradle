@@ -4,15 +4,32 @@ version = '1.0'
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
+println sourceSets.main.output
+println sourceSets.main.compileClasspath
+
 task fatJar(type: Jar) {
 	manifest {
         attributes 'Implementation-Title': 'User ad worker',
         	'Implementation-Version': version,
-        	'Main-Class': 'Worker'
+        	'Main-Class': 'com.hieuslash.workers.AdsWorker'
     }
     baseName = project.name + '-all'
     from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
     with jar
+}
+
+jar {
+	manifest {
+        attributes 'Implementation-Title': 'User ad worker',
+        	'Implementation-Version': version,
+        	'Main-Class': 'com.hieuslash.workers.AdsWorker',
+					'Class-Path': '/Users/hieutrtr/projects/user-ad-worker/build/libs/*'
+    }
+}
+
+task getDeps(type: Copy) {
+  from sourceSets.main.runtimeClasspath
+  into 'build/libs'
 }
 
 repositories {
@@ -29,5 +46,6 @@ dependencies {
 		compile "org.slf4j:slf4j-log4j12:1.7.5"
    	compile "io.confluent:kafka-avro-serializer:3.0.0"
    	compile "org.apache.kafka:kafka_2.11:0.10.0.1"
+   	compile "org.elasticsearch:elasticsearch:2.4.1"
     testCompile 'junit:junit:4.12'
 }

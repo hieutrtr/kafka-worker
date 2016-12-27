@@ -8,6 +8,12 @@ import java.util.ArrayList;
 import org.apache.avro.generic.IndexedRecord;
 import kafka.message.MessageAndMetadata;
 import org.apache.kafka.common.errors.SerializationException;
+import com.hieuslash.db.ESClient;
+import com.hieuslash.Utils;
+import kafka.consumer.KafkaStream;
+import java.util.stream.StreamSupport;
+import java.util.Spliterators;
+import java.util.Spliterator;
 
 public class AdsWorker extends Worker {
 
@@ -27,6 +33,16 @@ public class AdsWorker extends Worker {
   }
 
   @Override
+  public void doWork(KafkaStream kafkaStream) {
+    StreamSupport.stream(Spliterators.spliteratorUnknownSize(kafkaStream.iterator(), Spliterator.ORDERED), false)
+    .map(record -> {
+      MessageAndMetadata metaRecord = (MessageAndMetadata) record;
+      return metaRecord.message();
+    })
+    .forEach(message -> System.out.println(message));
+  }
+
+  @Override
   public void doWork(ConsumerRecord<String, String> record) {
     System.out.println("Receive message: " + record.value() + ", Partition: "
         + record.partition() + ", Offset: " + record.offset() + ", by ThreadID: "
@@ -35,13 +51,14 @@ public class AdsWorker extends Worker {
 
   @Override
   public void doWork(MessageAndMetadata record) {
-
+    ESClient esClient = new ESClient();
     try {
       IndexedRecord key = (IndexedRecord) record.key();
       IndexedRecord value = (IndexedRecord) record.message();
-      System.out.println(key);
-      System.out.println(key);
+      System.out.println(Utils.jsonMap(key.toString()).toString());
       System.out.println(value);
+      //Elastic Job
+      esClient.index(Utils.jsonMap(value.toString()));
     } catch(SerializationException e) {
       // may need to do something with it
     }

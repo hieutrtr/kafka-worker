@@ -58,22 +58,23 @@ public abstract class Worker implements Runnable{
   @Override
   public void run() {
     KafkaStream stream = createStream();
-    ConsumerIterator it = stream.iterator();
-    while (it.hasNext()) {
-      try {
-        MessageAndMetadata messageAndMetadata = it.next();
-        doWork(messageAndMetadata);
-        if(Thread.currentThread().isInterrupted())
-        {
-          throw new InterruptedException();
-        }
-      } catch (InterruptedException e) {
-          System.out.println("stop running thread");
-          Thread.currentThread().interrupt();
-      }
-    }
+    doWork(stream);
+    // ConsumerIterator it = stream.iterator();
+    // while (it.hasNext()) {
+    //   try {
+    //     MessageAndMetadata messageAndMetadata = it.next();
+    //     doWork(messageAndMetadata);
+    //     if(Thread.currentThread().isInterrupted())
+    //     {
+    //       throw new InterruptedException();
+    //     }
+    //   } catch (InterruptedException e) {
+    //       System.out.println("stop running thread");
+    //       Thread.currentThread().interrupt();
+    //   }
+    // }
   }
-
+  abstract void doWork(KafkaStream stream);
   abstract void doWork(ConsumerRecord<String, String> record);
   abstract void doWork(MessageAndMetadata record);
 

@@ -8,6 +8,7 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 public @interface WorkerBoot {
-  String configPath() default "/etc/user-ad-worker";
+  String configPath() default "/etc/kafka-worker";
   String consumerPropsPath() default "config/consumer.properties";
+  String esPropsPath() default "config/es.properties";
 }
